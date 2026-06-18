@@ -7,6 +7,7 @@ namespace App\Tenders\Presentation\Controller;
 use App\Tenders\Application\Query\GetTendersQuery;
 use App\Tenders\Domain\Repository\TenderRepositoryInterface;
 use App\Tenders\Domain\Entity\TenderId;
+use OpenApi\Attributes as OA;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -20,6 +21,95 @@ final class TenderController
     ) {
     }
 
+    #[OA\Get(
+        path: '/tenders',
+        summary: 'Список тендеров',
+        security: [['ApiKey' => []]],
+        tags: ['Tenders'],
+        parameters: [
+            new OA\Parameter(
+                name: 'q',
+                in: 'query',
+                required: false,
+                description: 'Полнотекстовый поиск',
+                schema: new OA\Schema(type: 'string')
+            ),
+            new OA\Parameter(
+                name: 'region',
+                in: 'query',
+                required: false,
+                description: 'Регион',
+                schema: new OA\Schema(type: 'string', example: 'Москва')
+            ),
+            new OA\Parameter(
+                name: 'category',
+                in: 'query',
+                required: false,
+                description: 'UUID категории',
+                schema: new OA\Schema(type: 'string', format: 'uuid')
+            ),
+            new OA\Parameter(
+                name: 'min_budget',
+                in: 'query',
+                required: false,
+                description: 'Минимальный бюджет (в копейках)',
+                schema: new OA\Schema(type: 'integer')
+            ),
+            new OA\Parameter(
+                name: 'max_budget',
+                in: 'query',
+                required: false,
+                description: 'Максимальный бюджет (в копейках)',
+                schema: new OA\Schema(type: 'integer')
+            ),
+            new OA\Parameter(
+                name: 'page',
+                in: 'query',
+                required: false,
+                description: 'Страница',
+                schema: new OA\Schema(type: 'integer', default: 1)
+            ),
+            new OA\Parameter(
+                name: 'per_page',
+                in: 'query',
+                required: false,
+                description: 'Элементов на странице',
+                schema: new OA\Schema(type: 'integer', default: 20)
+            ),
+        ],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'Список тендеров',
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(property: 'success', type: 'boolean', example: true),
+                        new OA\Property(
+                            property: 'data',
+                            type: 'array',
+                            items: new OA\Items(ref: '#/components/schemas/Tender'),
+                        ),
+                        new OA\Property(
+                            property: 'meta',
+                            properties: [
+                                new OA\Property(property: 'total', type: 'integer'),
+                                new OA\Property(property: 'page', type: 'integer'),
+                                new OA\Property(property: 'per_page', type: 'integer'),
+                                new OA\Property(property: 'total_pages', type: 'integer'),
+                            ],
+                            type: 'object',
+                        ),
+                    ],
+                ),
+            ),
+            new OA\Response(
+                response: 401,
+                description: 'Не авторизован',
+                content: new OA\JsonContent(ref: '#/components/schemas/ErrorResponse')
+            ),
+            new OA\Response(response: 429, description: 'Превышен лимит запросов'),
+        ],
+    )]
     public function index(ServerRequestInterface $request): ResponseInterface
     {
         $params = $request->getQueryParams();
@@ -46,6 +136,43 @@ final class TenderController
         ]);
     }
 
+    #[OA\Get(
+        path: '/tenders/{id}',
+        summary: 'Тендер по ID',
+        security: [['ApiKey' => []]],
+        tags: ['Tenders'],
+        parameters: [
+            new OA\Parameter(
+                name: 'id',
+                in: 'path',
+                required: true,
+                description: 'UUID тендера',
+                schema: new OA\Schema(type: 'string', format: 'uuid')
+            ),
+        ],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'Тендер найден',
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(property: 'success', type: 'boolean', example: true),
+                        new OA\Property(property: 'data', ref: '#/components/schemas/Tender'),
+                    ],
+                ),
+            ),
+            new OA\Response(
+                response: 400,
+                description: 'Неверный формат UUID',
+                content: new OA\JsonContent(ref: '#/components/schemas/ErrorResponse')
+            ),
+            new OA\Response(
+                response: 404,
+                description: 'Тендер не найден',
+                content: new OA\JsonContent(ref: '#/components/schemas/ErrorResponse')
+            ),
+        ],
+    )]
     public function show(ServerRequestInterface $request): ResponseInterface
     {
         $id = $request->getAttribute('id');

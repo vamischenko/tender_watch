@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Shared\Presentation;
 
+use OpenApi\Attributes as OA;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -19,6 +20,36 @@ final class HealthController
     ) {
     }
 
+    #[OA\Get(
+        path: '/health',
+        summary: 'Состояние сервисов',
+        tags: ['System'],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'Все сервисы работают',
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(
+                            property: 'status',
+                            type: 'string',
+                            enum: ['ok', 'degraded'],
+                            example: 'ok',
+                        ),
+                        new OA\Property(
+                            property: 'checks',
+                            properties: [
+                                new OA\Property(property: 'database', type: 'string', example: 'ok'),
+                                new OA\Property(property: 'cache', type: 'string', example: 'ok'),
+                            ],
+                            type: 'object',
+                        ),
+                    ],
+                ),
+            ),
+            new OA\Response(response: 503, description: 'Один или несколько сервисов недоступны'),
+        ],
+    )]
     public function index(ServerRequestInterface $request): ResponseInterface
     {
         $checks = [];

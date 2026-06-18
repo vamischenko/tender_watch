@@ -47,3 +47,6 @@ jobs:
 
       - name: Run PHP_CodeSniffer
         run: ./vendor/bin/phpcs --standard=phpcs.xml
+
+      - name: Generate OpenAPI spec
+        run: ./vendor/bin/openapi src -o public/docs/openapi.json --format json
