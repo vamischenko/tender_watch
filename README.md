@@ -103,6 +103,8 @@ docker compose exec php ./yii worker:notifications
 
 Приложение доступно по адресу: <http://localhost:8080>
 
+Swagger UI: <http://localhost:8080/docs/>
+
 RabbitMQ Management: <http://localhost:15672> (guest/guest)
 
 ### Переменные окружения
@@ -202,6 +204,9 @@ curl -X POST http://localhost:8080/api/v1/subscriptions \
 # Автоисправление (phpcbf)
 ./vendor/bin/phpcbf --standard=phpcs.xml
 
+# Генерация OpenAPI-спецификации (docs/openapi.json + public/docs/openapi.json)
+./vendor/bin/openapi src -o public/docs/openapi.json --format json
+
 # Пересборка конфига Yii3 после изменений config/configuration.php
 composer yii-config-rebuild
 
@@ -263,5 +268,7 @@ GitHub Actions (`.github/workflows/ci.yml`):
 
 1. PHP 8.3 + extensions
 2. Composer cache + install
-3. PHPUnit tests/Unit
+3. PHPUnit `--testsuite Unit`
 4. PHPStan level 6
+5. PHP\_CodeSniffer PSR-12 (`phpcs.xml`)
+6. Генерация `public/docs/openapi.json` (`zircote/swagger-php`)
