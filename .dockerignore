@@ -1,16 +1,29 @@
-# Ignore everything
+# Ignore everything by default, whitelist what's needed
 *
 
-# except:
-
-!/docker/**/Caddyfile
-!/config
-!/public
-!/src
-!/vendor
-!autoload.php
-!configuration.php
+# App source
+!src/
+!public/
+!config/
 !yii
+!yii.bat
+
+# Composer
 !composer.json
 !composer.lock
-!.env*
+!vendor/
+
+# Docker config
+!docker/Caddyfile
+!docker/dev/Caddyfile
+!docker/php/
+
+# Never include
+.git/
+.github/
+runtime/
+tests/
+docs/
+*.md
+*.pdf
+*.docx

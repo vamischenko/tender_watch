@@ -1,9 +1,10 @@
 FROM composer/composer:2-bin AS composer
 
-FROM dunglas/frankenphp:1-php8.2-bookworm AS base
+FROM dunglas/frankenphp:1-php8.3-bookworm AS base
 
-RUN apt update && apt -y install \
-    unzip
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    unzip \
+    && rm -rf /var/lib/apt/lists/*
 
 RUN install-php-extensions \
     opcache \
@@ -17,7 +18,10 @@ RUN install-php-extensions \
     xml \
     xmlwriter \
     simplexml \
-    pdo
+    pdo \
+    pdo_pgsql \
+    redis \
+    amqp
 
 ENV LC_ALL=C.UTF-8
 
@@ -54,13 +58,17 @@ COPY docker/dev/Caddyfile /etc/frankenphp/Caddyfile
 
 FROM base AS prod-builder
 COPY --from=composer /composer /usr/bin/composer
-COPY .. /app
-RUN --mount=type=cache,target=/tmp/cache \
-    composer install --no-dev --no-progress --no-interaction --classmap-authoritative && \
-    rm composer.lock composer.json
+WORKDIR /app
+COPY composer.json composer.lock ./
+RUN --mount=type=cache,target=/tmp/composer-cache \
+    composer install --no-dev --no-progress --no-interaction --classmap-authoritative
+COPY . .
 
 FROM base AS prod
 ENV APP_ENV=prod
+WORKDIR /app
 COPY docker/Caddyfile /etc/frankenphp/Caddyfile
 COPY --from=prod-builder --chown=www-data:www-data /app /app
 USER www-data
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+    CMD frankenphp php-info 2>/dev/null | grep -q "PHP Version" || exit 1
