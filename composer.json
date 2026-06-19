@@ -1,12 +1,14 @@
 {
-    "name": "yiisoft/app-api",
+    "name": "vamischenko/tender-watch",
     "type": "project",
-    "description": "Yii3 API project template",
+    "description": "Tender aggregator with subscriptions and alerts. PHP 8.3 / Yii3 / PostgreSQL / Redis / RabbitMQ.",
     "keywords": [
         "yii3",
-        "app",
-        "api",
-        "rest"
+        "tender",
+        "aggregator",
+        "subscriptions",
+        "notifications",
+        "ddd"
     ],
     "homepage": "https://github.com/yiisoft/app-api/",
     "license": "BSD-3-Clause",
