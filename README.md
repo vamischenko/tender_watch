@@ -145,6 +145,8 @@ TELEGRAM_BOT_TOKEN=your_token_here
 | GET      | `/subscriptions`      | Список подписок пользователя                           |
 | PATCH    | `/subscriptions/{id}` | Обновить подписку                                      |
 | DELETE   | `/subscriptions/{id}` | Удалить подписку                                       |
+| GET      | `/subscriptions/preview` | Предпросмотр совпадений по критериям (count + sample) |
+| GET      | `/notifications`      | Лог уведомлений пользователя (с пагинацией)           |
 
 ### Примеры
 

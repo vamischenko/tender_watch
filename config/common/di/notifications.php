@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Notifications\Application\Listener\EnqueueNotificationOnMatch;
 use App\Notifications\Infrastructure\Channel\EmailChannel;
 use App\Notifications\Infrastructure\Channel\TelegramChannel;
+use App\Notifications\Presentation\Controller\NotificationController;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mailer\Mailer;
 use Symfony\Component\Mailer\Transport;
@@ -39,6 +40,13 @@ return [
             $c->get(EmailChannel::class),
             $c->get(TelegramChannel::class),
         ];
+    },
+
+    NotificationController::class => static function (\Psr\Container\ContainerInterface $c): NotificationController {
+        return new NotificationController(
+            db: $c->get(\Yiisoft\Db\Connection\ConnectionInterface::class),
+            responseFactory: $c->get(\Psr\Http\Message\ResponseFactoryInterface::class),
+        );
     },
 
     EnqueueNotificationOnMatch::class => static function (\Psr\Container\ContainerInterface $c): EnqueueNotificationOnMatch {

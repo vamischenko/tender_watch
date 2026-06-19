@@ -5,6 +5,8 @@ declare(strict_types=1);
 use App\Tenders\Presentation\Controller\TenderController;
 use App\Tenders\Presentation\Controller\CategoryController;
 use App\Subscriptions\Presentation\Controller\SubscriptionController;
+use App\Subscriptions\Presentation\Controller\SubscriptionPreviewController;
+use App\Notifications\Presentation\Controller\NotificationController;
 use App\Identity\Presentation\Controller\AuthController;
 use App\Shared\Presentation\HealthController;
 use Yiisoft\Router\Route;
@@ -61,5 +63,16 @@ return [
                 ->middleware(\App\Shared\Infrastructure\Middleware\BearerAuthMiddleware::class)
                 ->action([SubscriptionController::class, 'delete'])
                 ->name('subscriptions.delete'),
+
+            Route::get('/subscriptions/preview')
+                ->middleware(\App\Shared\Infrastructure\Middleware\BearerAuthMiddleware::class)
+                ->action([SubscriptionPreviewController::class, 'preview'])
+                ->name('subscriptions.preview'),
+
+            // Notifications
+            Route::get('/notifications')
+                ->middleware(\App\Shared\Infrastructure\Middleware\BearerAuthMiddleware::class)
+                ->action([NotificationController::class, 'index'])
+                ->name('notifications.index'),
         ),
 ];
